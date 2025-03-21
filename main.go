@@ -70,5 +70,23 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
 	})
 
+	router.PUT("/users/:id", func(c *gin.Context) {
+		var user User
+		id := c.Param("id")
+		result := db.First(&user, id)
+		if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+			return
+		}
+
+		if err := c.ShouldBindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		user.UpdatedAt = time.Now()
+		db.Save(&user)
+		c.JSON(http.StatusOK, gin.H{"data": user})
+	})
+
 	router.Run(":3000")
 }
