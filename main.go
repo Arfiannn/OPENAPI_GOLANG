@@ -57,5 +57,18 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"data": user})
 	})
 
+	router.DELETE("/users/:id", func(c *gin.Context) {
+		var user User
+		id := c.Param("id")
+		result := db.First(&user, id)
+		if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+			return
+		}
+
+		db.Delete(&user)
+		c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
+	})
+
 	router.Run(":3000")
 }
